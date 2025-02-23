@@ -18,4 +18,8 @@ public interface SetmealDishMapper {
 
 
     void save(List<SetmealDish> setmealDishes);
+
+    List<SetmealDish> selectByDishId(Long id);
+
+    void deleteBySetmealId(Long id);
 }

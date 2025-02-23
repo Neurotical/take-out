@@ -9,6 +9,9 @@
             (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
         </foreach>
     </insert>
+    <delete id="deleteBySetmealId">
+        delete from sky_take_out.setmeal_dish where setmeal_id = #{Id};
+    </delete>
 
 
     <select id="countByDishesId" resultType="java.lang.Integer">
@@ -16,5 +19,8 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="selectByDishId" resultType="com.sky.entity.SetmealDish">
+        select * from sky_take_out.setmeal_dish where setmeal_id = #{id}
     </select>
 </mapper>
