@@ -44,4 +44,11 @@
         </where>
         order by create_time desc
     </select>
+    <select id="countByStatus" resultType="java.lang.Long">
+        select count(1) from sky_take_out.setmeal where status = #{enable}
+        and id in 
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

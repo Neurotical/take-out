@@ -41,4 +41,6 @@ public interface SetmealMapper {
 
     @AutoFill(OperationType.UPDATE)
     void update(Setmeal setmeal);
+
+    Long countByStatus(List<Long> ids, Integer enable);
 }

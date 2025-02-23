@@ -22,4 +22,8 @@ public interface SetmealDishMapper {
     List<SetmealDish> selectByDishId(Long id);
 
     void deleteBySetmealId(Long id);
+
+    void deleteBySetmealIds(List<Long> ids);
+
+    Integer countBySetmealId(Long id,Integer status);
 }

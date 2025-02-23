@@ -2,10 +2,13 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -68,9 +71,18 @@ public class SetmealServiceImpl implements SetmealService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteByIds(List<Long> ids) {
+        //判断是否有套餐在起售
+        Long cnt =  setmealMapper.countByStatus(ids, StatusConstant.ENABLE);
+        if(cnt > 0){
+            throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+        }
+
+        //没有则删除套餐及套餐菜品
         setmealMapper.deleteByIds(ids);
+        setmealDishMapper.deleteBySetmealIds(ids);
     }
 
     @Override
@@ -101,5 +113,25 @@ public class SetmealServiceImpl implements SetmealService {
             });
             setmealDishMapper.save(list);
         }
+    }
+
+    /**
+     * 更改起售停售
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Setmeal setmeal = Setmeal.builder()
+                .id(id)
+                .status(status)
+                .build();
+        //当要起售且套餐中有未起售的菜品时不起售
+        Integer cnt = setmealDishMapper.countBySetmealId(id,StatusConstant.DISABLE);
+        if (status .equals(StatusConstant.ENABLE) &&cnt > 0) {
+            throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+        }
+
+        setmealMapper.update(setmeal);
     }
 }

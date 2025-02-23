@@ -12,6 +12,12 @@
     <delete id="deleteBySetmealId">
         delete from sky_take_out.setmeal_dish where setmeal_id = #{Id};
     </delete>
+    <delete id="deleteBySetmealIds">
+        delete from sky_take_out.setmeal_dish where setmeal_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 
     <select id="countByDishesId" resultType="java.lang.Integer">
@@ -22,5 +28,9 @@
     </select>
     <select id="selectByDishId" resultType="com.sky.entity.SetmealDish">
         select * from sky_take_out.setmeal_dish where setmeal_id = #{id}
+    </select>
+    <select id="countBySetmealId" resultType="java.lang.Integer">
+        select count(1) from sky_take_out.setmeal_dish where setmeal_id = #{id}
+        and dish_id in (select id from sky_take_out.dish where status = #{status})
     </select>
 </mapper>
