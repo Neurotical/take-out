@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -91,5 +92,53 @@ public class DishServiceImpl implements DishService {
         dishMapper.deleteByIds(ids);
         //删除口味数据
         dishFlavorMapper.deleteByDishIds(ids);
+    }
+
+    /**
+     * 根据id查询菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getById(Long id) {
+        Dish dish = dishMapper.selectById(id);
+        List<DishFlavor> list = dishFlavorMapper.selectByDishId(id);
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(list);
+
+        return dishVO;
+    }
+
+    /**
+     * 更新菜品及口味
+     * @param dishVO
+     */
+    @Override
+    public void updateWithFlavor(DishVO dishVO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishVO, dish);
+        dishMapper.update(dish);
+        List<DishFlavor> flavors = dishVO.getFlavors();
+        dishFlavorMapper.deleteByDishIds(Collections.singletonList(dish.getId()));
+        if(flavors != null && !flavors.isEmpty()){
+            flavors.forEach(flavor -> {
+                flavor.setDishId(dish.getId());
+            });
+            dishFlavorMapper.insert(flavors);
+        }
+    }
+
+    /**
+     * 起售或停售
+     * @param status
+     * @param id
+     */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+        Dish dish = new Dish();
+        dish.setStatus(status);
+        dish.setId(id);
+        dishMapper.update(dish);
     }
 }

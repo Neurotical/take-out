@@ -61,4 +61,41 @@ public class DishController {
         dishService.deleteBatch(ids);
         return Result.success();
     }
+
+    /**
+     * 根据id查询菜品
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id) {
+        DishVO dishVO = dishService.getById(id);
+        return Result.success(dishVO);
+    }
+
+    /**
+     * 修改菜品及口味
+     * @param dishVO
+     * @return
+     */
+    @PutMapping
+    @ApiOperation("修改菜品")
+    public Result<String> updateWithFlavor(@RequestBody DishVO dishVO) {
+        dishService.updateWithFlavor(dishVO);
+        return Result.success();
+    }
+
+    /**
+     * 修改菜品状态
+     * @param status
+     * @param id
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("起售或停售")
+    public Result<String> updateStatus(@PathVariable Integer status,Long id){
+        dishService.updateStatus(status,id);
+        return Result.success();
+    }
 }

@@ -15,4 +15,10 @@ public interface DishService {
     public PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     void deleteBatch(List<Long> ids);
+
+    DishVO getById(Long id);
+
+    void updateWithFlavor(DishVO dishVO);
+
+    void updateStatus(Integer status, Long id);
 }
