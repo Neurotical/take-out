@@ -2,12 +2,15 @@ package com.sky.mapper;
 
 import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface DishMapper {
@@ -33,4 +36,18 @@ public interface DishMapper {
      * @return
      */
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    /**
+     * 查询ids中有多少菜品的状态与status相等
+     * @param ids
+     * @param status
+     * @return
+     */
+    Long countStatus(List<Long> ids, Integer status);
+
+    /**
+     * 根据ids删除菜品
+     * @param ids
+     */
+    void deleteByIds(List<Long> ids);
 }

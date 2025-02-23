@@ -14,4 +14,9 @@ public interface DishFlavorMapper {
      */
     void insert(List<DishFlavor> dishFlavors);
 
+    /**
+     * 根据菜品id删除口味
+     * @param dishIds
+     */
+    void deleteByDishIds(List<Long> dishIds);
 }
