@@ -62,5 +62,5 @@ public interface DishMapper {
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
 
-    List<Dish> selectByCategoryId(Long categoryId);
+    List<Dish> list(Dish dish);
 }
