@@ -65,6 +65,8 @@ public class DishController {
     @ApiOperation("批量删除菜品")
     public Result<String> deleteBatch(@RequestParam List<Long> ids){
         dishService.deleteBatch(ids);
+        String pattern  ="dish_*";
+        cleanCache(pattern);
         return Result.success();
     }
 
