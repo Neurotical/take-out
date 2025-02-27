@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜品接口
@@ -26,6 +28,9 @@ public class DishController {
 
     @Autowired
     private DishService dishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 添加菜品和口味
@@ -84,6 +89,8 @@ public class DishController {
     @ApiOperation("修改菜品")
     public Result<String> updateWithFlavor(@RequestBody DishVO dishVO) {
         dishService.updateWithFlavor(dishVO);
+        String pattern = "dish_"+dishVO.getCategoryName();
+        cleanCache(pattern);
         return Result.success();
     }
 
@@ -97,6 +104,8 @@ public class DishController {
     @ApiOperation("起售或停售")
     public Result<String> updateStatus(@PathVariable Integer status,Long id){
         dishService.updateStatus(status,id);
+        String pattern  ="dish_*";
+        cleanCache(pattern);
         return Result.success();
     }
 
@@ -106,5 +115,10 @@ public class DishController {
         log.info("根据分类查询菜品,{}",categoryId);
         List<Dish> dishes = dishService.selectByCategoryId(categoryId);
         return Result.success(dishes);
+    }
+
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
     }
 }
