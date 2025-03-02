@@ -11,4 +11,8 @@
                 (#{it.name},#{it.image},#{it.orderId},#{it.dishId},#{it.setmealId},#{it.dishFlavor},#{it.number},#{it.amount})
             </foreach>
     </insert>
+    <select id="getByOrderId" resultType="com.sky.entity.OrderDetail">
+        select * from sky_take_out.order_detail
+        where order_id=#{id}
+    </select>
 </mapper>
