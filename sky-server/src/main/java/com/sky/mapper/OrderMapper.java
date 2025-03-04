@@ -46,5 +46,17 @@ public interface OrderMapper {
     @Select("select * from sky_take_out.orders where status = #{status} and order_time<#{orderTime}")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime orderTime);
 
+    /**
+     * 统计营业额
+     * @param mp
+     * @return
+     */
     Double getByMap(Map mp);
+
+    /**
+     * 统计订单数量
+     * @param mp
+     * @return
+     */
+    Integer countByMap(Map mp);
 }
