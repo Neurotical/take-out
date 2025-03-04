@@ -2,8 +2,10 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public TurnoverReportVO getTurnoverStatistics(LocalDate begin, LocalDate end) {
@@ -54,5 +59,48 @@ public class ReportServiceImpl implements ReportService {
         turnoverReportVO.setTurnoverList(StringUtils.join(sumList, ","));
 
         return turnoverReportVO;
+    }
+
+    /**
+     * 用户统计
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        UserReportVO userReportVO = new UserReportVO();
+
+        //获取日期
+        List<LocalDate> dateList = new ArrayList<>();
+        LocalDate date = begin;
+        dateList.add(begin);
+        while(!date.equals(end)) {
+            date = date.plusDays(1);
+            dateList.add(date);
+        }
+        userReportVO.setDateList(StringUtils.join(dateList, ","));
+
+        //获取每日新增用户与总用户数
+        List<Integer> newUserList = new ArrayList<>();
+        List<Integer> totalUserList = new ArrayList<>();
+
+        for (LocalDate date1 : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date1, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date1, LocalTime.MAX);
+            Map mp = new HashMap();
+            mp.put("end", endTime);
+            Integer totalUser = userMapper.getByMap(mp);
+            totalUserList.add(totalUser);
+
+            mp.put("begin", beginTime);
+
+            Integer newUser = userMapper.getByMap(mp);
+            newUserList.add(newUser);
+        }
+        userReportVO.setTotalUserList(StringUtils.join(totalUserList, ","));
+        userReportVO.setNewUserList(StringUtils.join(newUserList, ","));
+
+        return userReportVO;
     }
 }
