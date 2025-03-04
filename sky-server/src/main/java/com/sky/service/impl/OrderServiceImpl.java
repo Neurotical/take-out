@@ -19,6 +19,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,6 +56,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Transactional
     @Override
@@ -164,6 +170,15 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        //通过WebSocket向管理端浏览器推送消息
+        Map map=new HashMap();
+        map.put("type",1);
+        map.put("orderId",ordersDB.getId());
+        map.put("content","订单号"+outTradeNo);
+
+        String json = JSONObject.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 
     /**
@@ -397,6 +412,26 @@ public class OrderServiceImpl implements OrderService {
         ordersNew.setStatus(Orders.COMPLETED);
         ordersNew.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(ordersNew);
+    }
+
+    /**
+     * 客户催的
+     * @param OrderId
+     */
+    @Override
+    public void reminder(Long OrderId) {
+        Orders orders = orderMapper.getById(OrderId);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Map map = new HashMap();
+        map.put("type",2);
+        map.put("orderId",OrderId);
+        map.put("content","订单号"+orders.getNumber());
+
+        //向管理端发送消息
+        webSocketServer.sendToAllClient(JSONObject.toJSONString(map));
     }
 
     /**
